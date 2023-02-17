@@ -116,25 +116,43 @@ void RunTextPrinters(void)
 {
     int i;
 
-    for (i = 0; i < NUM_TEXT_PRINTERS; ++i)
-    {
-        if (sTextPrinters[i].active)
-        {
-            u16 renderCmd = RenderFont(&sTextPrinters[i]);
-            switch (renderCmd)
-            {
-            case RENDER_PRINT:
-                CopyWindowToVram(sTextPrinters[i].printerTemplate.windowId, COPYWIN_GFX);
-            case RENDER_UPDATE:
-                if (sTextPrinters[i].callback != NULL)
-                    sTextPrinters[i].callback(&sTextPrinters[i].printerTemplate, renderCmd);
-                break;
-            case RENDER_FINISH:
-                sTextPrinters[i].active = FALSE;
-                break;
+    do {
+        int numEmpty = 0;
+        for (i = 0; i < NUM_TEXT_PRINTERS; ++i)
+		{
+            if (sTextPrinters[i].active)
+			{                
+                u8 renderState = sTextPrinters[i].state;
+                u16 renderCmd = RenderFont( & sTextPrinters[i]);
+                switch (renderCmd)
+				{
+                case RENDER_PRINT:
+                    CopyWindowToVram(sTextPrinters[i].printerTemplate.windowId, COPYWIN_GFX);
+                case RENDER_UPDATE:
+                    if (sTextPrinters[i].callback != NULL)
+                        sTextPrinters[i].callback( & sTextPrinters[i].printerTemplate, renderCmd);
+                    
+                    // these can happen only on RENDER_UPDATE
+                    // this ensures that when a user input is needed to progress
+                    // printing it is respected
+                    if (renderState == RENDER_STATE_CLEAR ||
+                        renderState == RENDER_STATE_SCROLL_START ||
+                        renderState == RENDER_STATE_WAIT) 
+                        { 
+                            numEmpty = NUM_TEXT_PRINTERS;
+                        }
+                    break;
+                case RENDER_FINISH:
+                    sTextPrinters[i].active = FALSE;
+                    break;
+                } 
+            } else {
+                numEmpty++;
             }
         }
-    }
+        if (numEmpty >= NUM_TEXT_PRINTERS)
+            return;
+    } while (gSaveBlock2Ptr -> optionsTextSpeed == OPTIONS_TEXT_SPEED_INST);
 }
 
 bool16 IsTextPrinterActive(u8 id)
