@@ -7,8 +7,13 @@ Then i found out that i can make changes as i wish to thanks to https://github.c
 
 I wanted the stock story and game experience (v1.1) without:
  1) text animation character by character -> instant text mode
- 2) skipping the battle intro, but only the part where the main hero throws the pokeball
- 3) skipping the goodbye text in the healath care center 
+ 2) speeding up the healath care center nurse text, especially remove the 'We Hope To See You Again'
+ 3) scrolling options menu - I plan to add more and more options, and they need to fit somehow 
+ 4) option to skip the quest log 
+ 5) add experience gain modifyer
+ 6) add experience share ration modifyer
+ 7) add type effectiveness to move chose screen
+ 
 
 I also need to say a huge thanks to https://github.com/Deokishisu with his https://github.com/Deokishisu/FRLG-Plus
 repo, which contained the stuff i needed (among lot more) in some form.
@@ -19,7 +24,7 @@ a lot more than 2 lines, the wait function will be still active, so i can read t
 For eample in case of a 6 line text it will be: 2 lines (line 1 and 2) instant, wait for BUTTON_A, 
 2 more lines (line 3 and 4) instant, wait for BUTTON_A, final lines, 
 wait for BUTTON_A. As opposed to the original Deokishisu hack which blinks for a fraction of a 
-second the first 2 pages (lines 1,2 then 3,4) and you stay with the fianl one. 
-
+second the first 2 pages (lines 1,2 then 3,4) and you stay with the fianl one.
+ 2) this was a quick one, just one liners on EventScript and in pkmn_center_nurse script
 
 To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page.
