@@ -13,9 +13,13 @@ I wanted the stock story and game experience (v1.1) without:
 I also need to say a huge thanks to https://github.com/Deokishisu with his https://github.com/Deokishisu/FRLG-Plus
 repo, which contained the stuff i needed (among lot more) in some form.
 
+From the wishlist I managed to accomplish:
+ 1) instant text mode. I modifyed the hack from Deokishisu so that when somebody want's to say 
+a lot more than 2 lines, the wait function will be still active, so i can read the content. 
+For eample in case of a 6 line text it will be: 2 lines (line 1 and 2) instant, wait for BUTTON_A, 
+2 more lines (line 3 and 4) instant, wait for BUTTON_A, final lines, 
+wait for BUTTON_A. As opposed to the original Deokishisu hack which blinks for a fraction of a 
+second the first 2 pages (lines 1,2 then 3,4) and you stay with the fianl one. 
 
-To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page. 
 
-
-
- 
+To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page.
