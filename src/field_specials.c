@@ -1546,6 +1546,10 @@ void ResetContextNpcTextColor(void)
 u8 ContextNpcGetTextColor(void)
 {
     u8 gfxId;
+
+    DebugPrintfLevel(MGBA_LOG_WARN, "gSpecialVar_TextColor = %X",  gSpecialVar_TextColor);
+    DebugPrintfLevel(MGBA_LOG_WARN, "gSelectedObjectEvent = %X",  gSelectedObjectEvent);
+
     if (gSpecialVar_TextColor != NPC_TEXT_COLOR_DEFAULT)
     {
         // A text color has been specified, use that

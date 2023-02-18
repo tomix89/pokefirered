@@ -3122,6 +3122,8 @@ static void Cmd_getexp(void)
     gBattlerFainted = GetBattlerForBattleScript(gBattlescriptCurrInstr[1]);
     sentIn = gSentPokesToOpponent[(gBattlerFainted & 2) >> 1];
 
+DebugPrintfLevel(MGBA_LOG_WARN, "getexpState = %d",  gBattleScripting.getexpState);   
+
     switch (gBattleScripting.getexpState)
     {
     case 0: // check if should receive exp at all
@@ -3138,6 +3140,8 @@ static void Cmd_getexp(void)
         {
             gBattleScripting.getexpState++;
             gBattleStruct->givenExpMons |= gBitTable[gBattlerPartyIndexes[gBattlerFainted]];
+            
+            DebugPrintfLevel(MGBA_LOG_WARN, "givenExpMons = %d",  gBattleStruct->givenExpMons);   
         }
         break;
     case 1: // calculate experience points to redistribute
@@ -3164,6 +3168,10 @@ static void Cmd_getexp(void)
             }
 
             calculatedExp = gBaseStats[gBattleMons[gBattlerFainted].species].expYield * gBattleMons[gBattlerFainted].level / 7;
+
+            DebugPrintfLevel(MGBA_LOG_WARN, "calculatedExp = %d",  calculatedExp);
+            
+            calculatedExp += 1;
 
             if (viaExpShare) // at least one mon is getting exp via exp share
             {

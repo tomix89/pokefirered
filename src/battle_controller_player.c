@@ -1025,6 +1025,9 @@ static void Task_GiveExpToMon(u8 taskId)
     u8 battlerId = gTasks[taskId].tExpTask_battler;
     s16 gainedExp = gTasks[taskId].tExpTask_gainedExp;
 
+ DebugPrintfLevel(MGBA_LOG_WARN, "Task_GiveExpToMon:gainedExp = %d",  gainedExp);
+
+
     if (IsDoubleBattle() == TRUE || monId != gBattlerPartyIndexes[battlerId]) // Give exp without moving the expbar.
     {
         struct Pokemon *mon = &gPlayerParty[monId];
@@ -1066,6 +1069,7 @@ static void Task_GiveExpToMon(u8 taskId)
 
 static void Task_PrepareToGiveExpWithExpBar(u8 taskId)
 {
+    
     u8 monIndex = gTasks[taskId].tExpTask_monId;
     s32 gainedExp = gTasks[taskId].tExpTask_gainedExp;
     u8 battlerId = gTasks[taskId].tExpTask_battler;
@@ -1076,6 +1080,8 @@ static void Task_PrepareToGiveExpWithExpBar(u8 taskId)
     u32 currLvlExp = gExperienceTables[gBaseStats[species].growthRate][level];
     u32 expToNextLvl;
 
+    DebugPrintfLevel(MGBA_LOG_WARN, "Task_PrepareToGiveExpWithExpBar:gainedExp = %d", gainedExp);
+
     exp -= currLvlExp;
     expToNextLvl = gExperienceTables[gBaseStats[species].growthRate][level + 1] - currLvlExp;
     SetBattleBarStruct(battlerId, gHealthboxSpriteIds[battlerId], expToNextLvl, exp, -gainedExp);
@@ -1085,6 +1091,9 @@ static void Task_PrepareToGiveExpWithExpBar(u8 taskId)
 
 static void Task_GiveExpWithExpBar(u8 taskId)
 {
+    
+         DebugPrintfLevel(MGBA_LOG_WARN, "Task_GiveExpWithExpBar");
+    
     if (gTasks[taskId].tExpTask_frames < 13)
     {
         ++gTasks[taskId].tExpTask_frames;
@@ -1380,6 +1389,10 @@ static void MoveSelectionDisplayMoveNames(void)
 
 static void MoveSelectionDisplayPpString(void)
 {
+    
+   //  SetPpNumbersPaletteInMoveSelectionFake(2);
+    
+    
     StringCopy(gDisplayedStringBattle, gText_MoveInterfacePP);
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_PP);
 }
@@ -1391,7 +1404,7 @@ static void MoveSelectionDisplayPpNumber(void)
 
     if (gBattleBufferA[gActiveBattler][2] == TRUE) // check if we didn't want to display pp number
         return;
-    SetPpNumbersPaletteInMoveSelection();
+    SetPpNumbersPaletteInMoveSelectionFake(2);
     moveInfo = (struct ChooseMoveStruct *)(&gBattleBufferA[gActiveBattler][4]);
     txtPtr = ConvertIntToDecimalStringN(gDisplayedStringBattle, moveInfo->currentPp[gMoveSelectionCursor[gActiveBattler]], STR_CONV_MODE_RIGHT_ALIGN, 2);
     *txtPtr = CHAR_SLASH;
@@ -2506,8 +2519,10 @@ static void PlayerHandleHealthBarUpdate(void)
 
 static void PlayerHandleExpUpdate(void)
 {
+   
     u8 monId = gBattleBufferA[gActiveBattler][1];
-
+    DebugPrintfLevel(MGBA_LOG_WARN, "PlayerHandleExpUpdate");
+         
     if (GetMonData(&gPlayerParty[monId], MON_DATA_LEVEL) >= MAX_LEVEL)
     {
         PlayerBufferExecCompleted();
@@ -2520,9 +2535,16 @@ static void PlayerHandleExpUpdate(void)
         LoadBattleBarGfx(1);
         GetMonData(&gPlayerParty[monId], MON_DATA_SPECIES);  // Unused return value.
         expPointsToGive = T1_READ_16(&gBattleBufferA[gActiveBattler][2]);
+        
+        DebugPrintfLevel(MGBA_LOG_WARN, "expPointsToGive = %d",  expPointsToGive);
+        
         taskId = CreateTask(Task_GiveExpToMon, 10);
         gTasks[taskId].tExpTask_monId = monId;
-        gTasks[taskId].tExpTask_gainedExp = expPointsToGive;
+        gTasks[taskId].tExpTask_gainedExp = expPointsToGive * 3LL / 2LL;
+        
+        DebugPrintfLevel(MGBA_LOG_WARN, "expPointsToGive2 = %d",  gTasks[taskId].tExpTask_gainedExp);
+        
+        
         gTasks[taskId].tExpTask_battler = gActiveBattler;
         gBattlerControllerFuncs[gActiveBattler] = BattleControllerDummy;
     }

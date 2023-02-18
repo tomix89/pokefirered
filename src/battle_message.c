@@ -1281,8 +1281,8 @@ const u8 gText_WhatWillOldManDo[] = _("What will the\nold man do?");
 const u8 gText_LinkStandby[] = _("{PAUSE 16}Link standby…");
 const u8 gText_BattleMenu[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}FIGHT{CLEAR_TO 56}BAG\nPOKéMON{CLEAR_TO 56}RUN");
 const u8 gText_SafariZoneMenu[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}BALL{CLEAR_TO 56}BAIT\nROCK{CLEAR_TO 56}RUN");
-const u8 gText_MoveInterfacePP[] = _("PP ");
-const u8 gText_MoveInterfaceType[] = _("TYPE/");
+const u8 gText_MoveInterfacePP[] = _("PP");
+const u8 gText_MoveInterfaceType[] = _("1/4 :");
 const u8 gText_MoveInterfaceDynamicColors[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}");
 const u8 gText_WhichMoveToForget_Unused[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}どの わざを\nわすれさせたい?");
 const u8 gText_BattleYesNoChoice[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}Yes\nNo");
@@ -2730,7 +2730,7 @@ void BattlePutTextOnWindow(const u8 *text, u8 windowId) {
     if (!(textFlags & 0x80))
         FillWindowPixelBuffer(windowId, sTextOnWindowsInfo_Normal[windowId].fillValue);
     if (textFlags & 0x40) {
-        color = ContextNpcGetTextColor();
+        color = ContextNpcGetTextColor();        
         printerTemplate.fontId = sNpcTextColorToFont[color];
     }
     else {
@@ -2771,6 +2771,14 @@ void BattlePutTextOnWindow(const u8 *text, u8 windowId) {
     printerTemplate.fgColor = sTextOnWindowsInfo_Normal[windowId].fgColor;
     printerTemplate.bgColor = sTextOnWindowsInfo_Normal[windowId].bgColor;
     printerTemplate.shadowColor = sTextOnWindowsInfo_Normal[windowId].shadowColor;
+    
+    if (windowId == B_WIN_MOVE_TYPE) {
+        DebugPrintfLevel(MGBA_LOG_WARN, "clrU = %X",  printerTemplate.unk);
+        DebugPrintfLevel(MGBA_LOG_WARN, "clrF = %X",  printerTemplate.fgColor);
+        DebugPrintfLevel(MGBA_LOG_WARN, "clrB = %X",  printerTemplate.bgColor);
+        DebugPrintfLevel(MGBA_LOG_WARN, "clrS = %X",  printerTemplate.shadowColor);
+    }
+    
     if (windowId == B_WIN_OAK_OLD_MAN)
         gTextFlags.useAlternateDownArrow = FALSE;
     else
@@ -2813,12 +2821,28 @@ bool8 BattleStringShouldBeColored(u16 stringId)
     return FALSE;
 }
 
+
+void SetPpNumbersPaletteInMoveSelectionFake(u8 var)
+{
+    const u16 *palPtr = gPPTextPalette;    
+    DebugPrintfLevel(MGBA_LOG_WARN, "palPtrX = %X",  var);
+
+    gPlttBufferUnfaded[92] = palPtr[(var * 2) + 0];
+    gPlttBufferUnfaded[91] = palPtr[(var * 2) + 1];
+
+    CpuCopy16(&gPlttBufferUnfaded[92], &gPlttBufferFaded[92], sizeof(u16));
+    CpuCopy16(&gPlttBufferUnfaded[91], &gPlttBufferFaded[91], sizeof(u16)); 
+}
+
 void SetPpNumbersPaletteInMoveSelection(void)
 {
     struct ChooseMoveStruct *chooseMoveStruct = (struct ChooseMoveStruct *)(&gBattleBufferA[gActiveBattler][4]);
     const u16 *palPtr = gPPTextPalette;
     u8 var = GetCurrentPpToMaxPpState(chooseMoveStruct->currentPp[gMoveSelectionCursor[gActiveBattler]],
                                       chooseMoveStruct->maxPp[gMoveSelectionCursor[gActiveBattler]]);
+
+    
+    DebugPrintfLevel(MGBA_LOG_WARN, "palPtr = %X",  var);
 
     gPlttBufferUnfaded[92] = palPtr[(var * 2) + 0];
     gPlttBufferUnfaded[91] = palPtr[(var * 2) + 1];
