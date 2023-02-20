@@ -8,7 +8,7 @@ Then i found out that i can make changes as i wish to thanks to https://github.c
 I wanted the stock story and game experience (v1.1) without:
  1) text animation character by character -> instant text mode
  2) removing the 'We Hope To See You Again' text from the nurse in the healath care center
- 3) add experience gain modifyer
+ 3) add experience gain modifier
  4) add type effectiveness to move chose screen
  5) skipping the battle intro, but only the part where the main hero throws the pokeball
  
@@ -24,5 +24,8 @@ For eample in case of a 6 line text it will be: 2 lines (line 1 and 2) instant, 
 wait for BUTTON_A. As opposed to the original Deokishisu hack which blinks for a fraction of a 
 second the first 2 pages (lines 1,2 then 3,4) and you stay with the fianl one.
  2) this was a quick one, just one liners on EventScript
+ 3) this was a nice exercise. Adding new option item with texts, the modifier itself and some extra logic.\
+Still 100% backward compatible, as i have chosen an unused area from SaveBlock2.\
+Player can now chose from 1x 1.2x 1.5x or 2x experince gain.
 
 To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page.

@@ -584,6 +584,14 @@ static const struct StatFractions sAccuracyStageRatios[] =
     {  3,   1}, // +6
 };
 
+static const u8 sExpGainSpeeds[] =
+{
+   [OPTIONS_EXP_GAIN_SPEED_NORMAL] = 10, // 1.0x
+   [OPTIONS_EXP_GAIN_SPEED_MEDIUM] = 12, // 1.2x
+   [OPTIONS_EXP_GAIN_SPEED_FAST] =   15, // 1.5x
+   [OPTIONS_EXP_GAIN_SPEED_ULTRA] =  20, // 2.0x
+};
+
 // The chance is 1/N for each stage.
 static const u16 sCriticalHitChance[] = {16, 8, 4, 3, 2};
 
@@ -3144,6 +3152,7 @@ static void Cmd_getexp(void)
         {
             u16 calculatedExp;
             s32 viaSentIn;
+            u8 expGainSpeedMul;
 
             for (viaSentIn = 0, i = 0; i < PARTY_SIZE; i++)
             {
@@ -3164,6 +3173,14 @@ static void Cmd_getexp(void)
             }
 
             calculatedExp = gBaseStats[gBattleMons[gBattlerFainted].species].expYield * gBattleMons[gBattlerFainted].level / 7;
+
+            // fail safe as this option is not present in the original game
+            if (gSaveBlock2Ptr->optionsExpGainSpeed > OPTIONS_EXP_GAIN_SPEED_ULTRA)
+                gSaveBlock2Ptr->optionsExpGainSpeed = OPTIONS_EXP_GAIN_SPEED_NORMAL;
+
+            expGainSpeedMul = sExpGainSpeeds[gSaveBlock2Ptr->optionsExpGainSpeed];
+            // the +5 will behave as 0.5 and will ensure that the result is rounded instead of truncation
+            calculatedExp = (calculatedExp * (unsigned long long)expGainSpeedMul + 5) / 10;     
 
             if (viaExpShare) // at least one mon is getting exp via exp share
             {
