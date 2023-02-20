@@ -18,6 +18,7 @@ bool32 IsActiveOverworldLinkBusy(void);
 enum
 {
     MENUITEM_TEXTSPEED = 0,
+    MENUITEM_EXPGAINSPEED,
     MENUITEM_BATTLESCENE,
     MENUITEM_BATTLESTYLE,
     MENUITEM_SOUND,
@@ -38,10 +39,10 @@ enum
 struct OptionMenu
 {
     /*0x00*/ u16 option[MENUITEM_COUNT];
-    /*0x0E*/ u16 cursorPos;
-    /*0x10*/ u8 loadState;
-    /*0x11*/ u8 state;
-    /*0x12*/ u8 loadPaletteState;
+    /*0x10*/ u16 cursorPos;
+    /*0x12*/ u8 loadState;
+    /*0x13*/ u8 state;
+    /*0x14*/ u8 loadPaletteState;
 };
 
 static EWRAM_DATA struct OptionMenu *sOptionMenuPtr = NULL;
@@ -131,11 +132,12 @@ static const struct BgTemplate sOptionMenuBgTemplates[] =
 };
 
 static const u16 sOptionMenuPalette[] = INCBIN_U16("graphics/misc/unk_83cc2e4.gbapal");
-static const u16 sOptionMenuItemCounts[MENUITEM_COUNT] = {4, 2, 2, 2, 3, 10, 0};
+static const u16 sOptionMenuItemCounts[MENUITEM_COUNT] = {4, 4, 2, 2, 2, 3, 10, 0};
 
 static const u8 *const sOptionMenuItemsNames[MENUITEM_COUNT] =
 {
     [MENUITEM_TEXTSPEED]   = gText_TextSpeed,
+    [MENUITEM_EXPGAINSPEED] = gText_ExpGainSpeed,
     [MENUITEM_BATTLESCENE] = gText_BattleScene,
     [MENUITEM_BATTLESTYLE] = gText_BattleStyle,
     [MENUITEM_SOUND]       = gText_Sound,
@@ -150,6 +152,14 @@ static const u8 *const sTextSpeedOptions[] =
     gText_TextSpeedMid, 
     gText_TextSpeedFast,
     gText_TextSpeedInstant
+};
+
+static const u8 *const sExpGainSpeedOptions[] =
+{
+    gText_ExpGainSpeedNormal, 
+    gText_ExpGainSpeedMedium, 
+    gText_ExpGainSpeedFast,
+    gText_ExpGainSpeedUltra
 };
 
 static const u8 *const sBattleSceneOptions[] =
@@ -208,6 +218,7 @@ void CB2_OptionsMenuFromStartMenu(void)
     sOptionMenuPtr->state = 0;
     sOptionMenuPtr->cursorPos = 0;
     sOptionMenuPtr->option[MENUITEM_TEXTSPEED] = gSaveBlock2Ptr->optionsTextSpeed;
+    sOptionMenuPtr->option[MENUITEM_EXPGAINSPEED] = gSaveBlock2Ptr->optionsExpGainSpeed;
     sOptionMenuPtr->option[MENUITEM_BATTLESCENE] = gSaveBlock2Ptr->optionsBattleSceneOff;
     sOptionMenuPtr->option[MENUITEM_BATTLESTYLE] = gSaveBlock2Ptr->optionsBattleStyle;
     sOptionMenuPtr->option[MENUITEM_SOUND] = gSaveBlock2Ptr->optionsSound;
@@ -481,6 +492,9 @@ static void BufferOptionMenuString(u8 selection)
     case MENUITEM_TEXTSPEED:
         AddTextPrinterParameterized3(1, FONT_NORMAL, x, y, dst, -1, sTextSpeedOptions[sOptionMenuPtr->option[selection]]);
         break;
+    case MENUITEM_EXPGAINSPEED:
+        AddTextPrinterParameterized3(1, FONT_NORMAL, x, y, dst, -1, sExpGainSpeedOptions[sOptionMenuPtr->option[selection]]);
+        break;
     case MENUITEM_BATTLESCENE:
         AddTextPrinterParameterized3(1, FONT_NORMAL, x, y, dst, -1, sBattleSceneOptions[sOptionMenuPtr->option[selection]]);
         break;
@@ -512,6 +526,7 @@ static void CloseAndSaveOptionMenu(u8 taskId)
     SetMainCallback2(gMain.savedCallback);
     FreeAllWindowBuffers();
     gSaveBlock2Ptr->optionsTextSpeed = sOptionMenuPtr->option[MENUITEM_TEXTSPEED];
+    gSaveBlock2Ptr->optionsExpGainSpeed = sOptionMenuPtr->option[MENUITEM_EXPGAINSPEED];
     gSaveBlock2Ptr->optionsBattleSceneOff = sOptionMenuPtr->option[MENUITEM_BATTLESCENE];
     gSaveBlock2Ptr->optionsBattleStyle = sOptionMenuPtr->option[MENUITEM_BATTLESTYLE];
     gSaveBlock2Ptr->optionsSound = sOptionMenuPtr->option[MENUITEM_SOUND];
