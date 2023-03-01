@@ -335,7 +335,7 @@ struct SaveBlock2
     /*0x097*/ u8 optionsExpGainModifier:3;
               u8 optionsQuestLogDisabled:1;
               u8 optionsExpShareRatio:3;
-              // 1 more bit free
+              u8 optionsTypeEffMode:1;
     /*0x098*/ struct Time localTimeOffset;
     /*0x0A0*/ struct Time lastBerryTreeUpdate;
     /*0x0A8*/ u32 gcnLinkFlags; // Read by Pokemon Colosseum/XD

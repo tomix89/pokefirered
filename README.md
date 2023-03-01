@@ -49,5 +49,6 @@ But it(interfering with the Help system, but also after disabling that the `R_BU
 So why not to use the `A_BUTTON` as on other summary screens? So i decided to do so. Each subsequent press of `A_BUTTON` will forward the screen to the next mode
 Skills -> EV -> IV -> Skills...\
 Mine also updates the page text, so you know on which you are on.<br>![img](images/summary-ev-iv.gif)
+ 8) as first step added the menu option to be able to select between different modes of type effectiveness
 
 To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page.

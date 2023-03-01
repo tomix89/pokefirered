@@ -100,6 +100,9 @@
 #define OPTIONS_TEXT_SPEED_FAST  2
 #define OPTIONS_TEXT_SPEED_INST  3
 
+#define OPTIONS_TYPE_EFF_MODE_ORIG     0 // this is the original one from the game, it shows only the type (no coloring) 
+#define OPTIONS_TYPE_EFF_MODE_ADVANCED 1 // this shows the two type effectiveness and STAB effect in percent in color  
+
 #define OPTIONS_SOUND_MONO    0
 #define OPTIONS_SOUND_STEREO  1
 

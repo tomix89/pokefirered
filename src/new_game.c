@@ -64,6 +64,7 @@ static void SetDefaultOptions(void)
     gSaveBlock2Ptr->optionsTextSpeed = OPTIONS_TEXT_SPEED_MID;
     gSaveBlock2Ptr->optionsExpGainModifier = EXP_GAIN_MOD_1x; // same as the stock game
     gSaveBlock2Ptr->optionsExpShareRatio = EXP_SHARE_RATIO_50; // same as the stock game
+    gSaveBlock2Ptr->optionsTypeEffMode = OPTIONS_TYPE_EFF_MODE_ORIG; // same as the stock game
     gSaveBlock2Ptr->optionsQuestLogDisabled = 0; // same as the stock game
     gSaveBlock2Ptr->optionsWindowFrameType = 0;
     gSaveBlock2Ptr->optionsSound = OPTIONS_SOUND_MONO;
