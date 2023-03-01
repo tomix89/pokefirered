@@ -1402,14 +1402,54 @@ static void MoveSelectionDisplayPpNumber(void)
 static void MoveSelectionDisplayMoveType(void)
 {
     u8 *txtPtr;
-    struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleBufferA[gActiveBattler][4]);
+    u8 targetId;
+    u16 fori;
+    u16 move = gBattleMons[gActiveBattler].moves[gMoveSelectionCursor[gActiveBattler]];
 
-    txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceType);
-    *txtPtr++ = EXT_CTRL_CODE_BEGIN;
-    *txtPtr++ = 6;
-    *txtPtr++ = 1;
-    txtPtr = StringCopy(txtPtr, gText_MoveInterfaceDynamicColors);
-    StringCopy(txtPtr, gTypeNames[gBattleMoves[moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]].type]);
+    // there are a lot of power == 1 moves which have really complex special calulations
+    // i'm not sure if they are all but at least some (diglet's magnitude) are affected by type interactions
+    // so show type effectivenes in this case
+    // 
+    // on the other hand the majotiry of stat moves are NOT type sensitive, so it will be misleading to show an actual value
+    // or color, therefore adding  dedicated text
+    if (gBattleMoves[move].power > 0) {
+
+        txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceType);
+
+       // *txtPtr++ = EXT_CTRL_CODE_BEGIN;
+      //   for(fori = 0; fori<30; fori++) {  DebugPrintfLevel(MGBA_LOG_WARN, "    gDisplayedStringBattle1: %x", gDisplayedStringBattle[fori]); }
+       // *txtPtr++ = 6;
+       //  for(fori = 0; fori<30; fori++) {  DebugPrintfLevel(MGBA_LOG_WARN, "    gDisplayedStringBattle1: %x", gDisplayedStringBattle[fori]); }
+       // *txtPtr++ = 1;
+       //  for(fori = 0; fori<30; fori++) {  DebugPrintfLevel(MGBA_LOG_WARN, "    gDisplayedStringBattle1: %x", gDisplayedStringBattle[fori]); }
+
+        targetId = GetBattlerAtPosition(BATTLE_OPPOSITE(GetBattlerPosition(gActiveBattler)));
+        SetTypeNumbersPaletteInMoveSelection(targetId);
+        txtPtr = StringCopy(txtPtr, gText_FontNormal);
+        txtPtr = StringCopy(txtPtr, gText_MoveInterfaceDynamicColorsEff);
+      
+     //   for(fori = 0; fori<30; fori++) {  DebugPrintfLevel(MGBA_LOG_WARN, "    gDisplayedStringBattle1: %x", gDisplayedStringBattle[fori]); }
+
+
+
+        if (gBattleMoveDamage == 0) {
+            StringCopy(txtPtr, gText_MoveInterfaceTypeImmune);
+     //      for(fori = 0; fori<30; fori++) {  DebugPrintfLevel(MGBA_LOG_WARN, "    gDisplayedStringBattle1: %x", gDisplayedStringBattle[fori]); }
+        } else {
+            txtPtr = ConvertIntToDecimalStringN(txtPtr, gBattleMoveDamage, STR_CONV_MODE_RIGHT_ALIGN, 3);
+     //      for(fori = 0; fori<30; fori++) {  DebugPrintfLevel(MGBA_LOG_WARN, "    gDisplayedStringBattle1: %x", gDisplayedStringBattle[fori]); }
+            *txtPtr++ = CHAR_PERCENT;
+            *txtPtr = EOS;
+    //       for(fori = 0; fori<30; fori++) {  DebugPrintfLevel(MGBA_LOG_WARN, "    gDisplayedStringBattle1: %x", gDisplayedStringBattle[fori]); }
+        }
+
+    } else {
+   
+      //  txtPtr = StringCopy(gDisplayedStringBattle, gText_FontNormal); // because the default for B_WIN_MOVE_TYPE is FONT_SMALL
+        StringCopy(gDisplayedStringBattle, gText_MoveInterfaceTypeStatMove);
+   //     for(fori = 0; fori<30; fori++) {  DebugPrintfLevel(MGBA_LOG_WARN, "    gDisplayedStringBattle1: %x", gDisplayedStringBattle[fori]); }
+    }
+
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_TYPE);
 }
 

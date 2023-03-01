@@ -1471,6 +1471,22 @@ u8 TypeCalc(u16 move, u8 attacker, u8 defender)
 
     moveType = gBattleMoves[move].type;
 
+    DebugPrintfLevel(MGBA_LOG_WARN, "defender type1: %d",  gBattleMons[defender].type1);
+    DebugPrintfLevel(MGBA_LOG_WARN, "defender type2: %d",  gBattleMons[defender].type2);
+    DebugPrintfLevel(MGBA_LOG_WARN, "atacker moveType: %d",  moveType);
+    DebugPrintfLevel(MGBA_LOG_WARN, "atacker move pow: %d",  gBattleMoves[move].power);
+    DebugPrintfLevel(MGBA_LOG_WARN, "atacker move acc: %d",  gBattleMoves[move].accuracy);
+    //DebugPrintfLevel(MGBA_LOG_WARN, "gBattleMoveDamage1: %d, %X",  gBattleMoveDamage, flags);
+
+
+    if (IS_TYPE_PHYSICAL(moveType)) {
+        DebugPrintfLevel(MGBA_LOG_WARN, "atacker attack: %d",  gBattleMons[attacker].attack );
+        DebugPrintfLevel(MGBA_LOG_WARN, "defender defense: %d",  gBattleMons[defender].defense);
+    } else {    
+        DebugPrintfLevel(MGBA_LOG_WARN, "atacker SPattack: %d",  gBattleMons[attacker].spAttack);
+        DebugPrintfLevel(MGBA_LOG_WARN, "defender SPdefense: %d",  gBattleMons[defender].spDefense);
+    }
+
     // check stab
     if (IS_BATTLER_OF_TYPE(attacker, moveType))
     {
@@ -1515,6 +1531,8 @@ u8 TypeCalc(u16 move, u8 attacker, u8 defender)
     {
         flags |= MOVE_RESULT_MISSED;
     }
+
+    DebugPrintfLevel(MGBA_LOG_WARN, "gBattleMoveDamage4: %d, %X",  gBattleMoveDamage, flags);
     return flags;
 }
 
