@@ -19,6 +19,7 @@ enum
 {
     MENUITEM_TEXTSPEED = 0,
     MENUITEM_EXPGAINSPEED,
+    MENUITEM_TYPEEFFMODE,
     MENUITEM_BATTLESCENE,
     MENUITEM_BATTLESTYLE,
     MENUITEM_SOUND,
@@ -132,12 +133,13 @@ static const struct BgTemplate sOptionMenuBgTemplates[] =
 };
 
 static const u16 sOptionMenuPalette[] = INCBIN_U16("graphics/misc/unk_83cc2e4.gbapal");
-static const u16 sOptionMenuItemCounts[MENUITEM_COUNT] = {4, 4, 2, 2, 2, 3, 10, 0};
+static const u16 sOptionMenuItemCounts[MENUITEM_COUNT] = {4, 4, 3, 2, 2, 2, 3, 10, 0};
 
 static const u8 *const sOptionMenuItemsNames[MENUITEM_COUNT] =
 {
     [MENUITEM_TEXTSPEED]   = gText_TextSpeed,
     [MENUITEM_EXPGAINSPEED] = gText_ExpGainSpeed,
+    [MENUITEM_TYPEEFFMODE] = gText_TypeEffMode,
     [MENUITEM_BATTLESCENE] = gText_BattleScene,
     [MENUITEM_BATTLESTYLE] = gText_BattleStyle,
     [MENUITEM_SOUND]       = gText_Sound,
@@ -160,6 +162,13 @@ static const u8 *const sExpGainSpeedOptions[] =
     gText_ExpGainSpeedMedium, 
     gText_ExpGainSpeedFast,
     gText_ExpGainSpeedUltra
+};
+
+static const u8 *const sTypeEffModeOptions[] =
+{
+    gText_TypeEffModeBase, 
+    gText_TypeEffModeSimple, 
+    gText_TypeEffModeFull
 };
 
 static const u8 *const sBattleSceneOptions[] =
@@ -494,6 +503,9 @@ static void BufferOptionMenuString(u8 selection)
         break;
     case MENUITEM_EXPGAINSPEED:
         AddTextPrinterParameterized3(1, FONT_NORMAL, x, y, dst, -1, sExpGainSpeedOptions[sOptionMenuPtr->option[selection]]);
+        break;
+    case MENUITEM_TYPEEFFMODE:
+        AddTextPrinterParameterized3(1, FONT_NORMAL, x, y, dst, -1, sTypeEffModeOptions[sOptionMenuPtr->option[selection]]);
         break;
     case MENUITEM_BATTLESCENE:
         AddTextPrinterParameterized3(1, FONT_NORMAL, x, y, dst, -1, sBattleSceneOptions[sOptionMenuPtr->option[selection]]);

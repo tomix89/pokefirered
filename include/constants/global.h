@@ -105,6 +105,10 @@
 #define OPTIONS_EXP_GAIN_SPEED_FAST     2
 #define OPTIONS_EXP_GAIN_SPEED_ULTRA    3
 
+#define OPTIONS_TYPE_EFF_MODE_BASE   0 // this is the original one from the game, it shows only the type (no coloring) 
+#define OPTIONS_TYPE_EFF_MODE_SIMPLE 1 // this shows the two type effectiveness percent in color  
+#define OPTIONS_TYPE_EFF_MODE_FULL   2 // this shows a number based on the real damage calulation including level, move power, atack and defense ratio
+
 #define OPTIONS_SOUND_MONO    0
 #define OPTIONS_SOUND_STEREO  1
 
