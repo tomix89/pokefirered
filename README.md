@@ -26,5 +26,9 @@ For eample in case of a 6 line text it will be: 2 lines (line 1 and 2) instant, 
 wait for BUTTON_A. As opposed to the original Deokishisu hack which blinks for a fraction of a 
 second the first 2 pages (lines 1,2 then 3,4) and you stay with the fianl one.
  2) this was a quick one, just one liners on EventScript and in pkmn_center_nurse script
+ 3) based on https://www.pokecommunity.com/showpost.php?p=10275248 which is basically https://github.com/TheXaman/pokeemerald/tree/tx_optionsPlus 
+i was able to modify the menu system of the firered in the same manner. 
+There was lot of differences in code but the result is the same. The only visible difference is that we firered has 6 lines
+while TheXaman's emerald has 7.<br>![img](images/options-menu-scroll.gif) 
 
 To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page.

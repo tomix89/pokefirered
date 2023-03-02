@@ -37,12 +37,16 @@ enum
 // RAM symbols
 struct OptionMenu
 {
-    /*0x00*/ u16 option[MENUITEM_COUNT];
-    /*0x0E*/ u16 cursorPos;
-    /*0x10*/ u8 loadState;
-    /*0x11*/ u8 state;
-    /*0x12*/ u8 loadPaletteState;
+    u16 option[MENUITEM_COUNT];
+    s16 cursorPos;
+    s16 visibleCursor;
+    u8 loadState;
+    u8 state;
+    u8 loadPaletteState;
 };
+
+#define Y_DIFF  16  // window height of the options (96px) has to be divisible by this
+#define OPTIONS_LINE_CNT  6
 
 static EWRAM_DATA struct OptionMenu *sOptionMenuPtr = NULL;
 
@@ -59,7 +63,7 @@ static void OptionMenu_ResetSpriteData(void);
 static bool8 LoadOptionMenuPalette(void);
 static void Task_OptionMenu(u8 taskId);
 static u8 OptionMenu_ProcessInput(void);
-static void BufferOptionMenuString(u8 selection);
+static void BufferOptionMenuString(u8 selection, u8 visiSelection);
 static void CloseAndSaveOptionMenu(u8 taskId);
 static void PrintOptionMenuHeader(void);
 static void DrawOptionMenuBg(void);
@@ -264,7 +268,7 @@ static void CB2_OptionMenu(void)
         break;
     case 7:
         for (i = 0; i < MENUITEM_COUNT; i++)
-            BufferOptionMenuString(i);
+            BufferOptionMenuString(i, i);
         break;
     case 8:
         UpdateSettingSelectionDisplay(sOptionMenuPtr->cursorPos);
@@ -384,13 +388,13 @@ static void Task_OptionMenu(u8 taskId)
         case 2:
             LoadBgTiles(1, GetUserWindowGraphics(sOptionMenuPtr->option[MENUITEM_FRAMETYPE])->tiles, 0x120, 0x1AA);
             LoadPalette(GetUserWindowGraphics(sOptionMenuPtr->option[MENUITEM_FRAMETYPE])->palette, 0x20, 0x20);
-            BufferOptionMenuString(sOptionMenuPtr->cursorPos);
+            BufferOptionMenuString(sOptionMenuPtr->cursorPos, sOptionMenuPtr->visibleCursor);
             break;
         case 3:
-            UpdateSettingSelectionDisplay(sOptionMenuPtr->cursorPos);
+            UpdateSettingSelectionDisplay(sOptionMenuPtr->visibleCursor);
             break;
         case 4:
-            BufferOptionMenuString(sOptionMenuPtr->cursorPos);
+            BufferOptionMenuString(sOptionMenuPtr->cursorPos, sOptionMenuPtr->visibleCursor);
             break;
         }
         break;
@@ -407,6 +411,63 @@ static void Task_OptionMenu(u8 taskId)
         CloseAndSaveOptionMenu(taskId);
         break;
     }
+}
+
+static void ScrollMenu(int direction)
+{
+    int menuItem, pos;
+
+    if (direction == 0) // scroll down
+        menuItem = sOptionMenuPtr->cursorPos + 2, pos = OPTIONS_LINE_CNT - 1;
+    else
+        menuItem = sOptionMenuPtr->cursorPos - 3, pos = 0;
+
+    // Hide one
+    ScrollWindow(WIN_OPTIONS, direction, Y_DIFF, PIXEL_FILL(0));
+    // Show one
+    FillWindowPixelRect(WIN_OPTIONS, PIXEL_FILL(1), 0, (pos * (Y_DIFF)), 208, Y_DIFF + 1);
+    // Print
+    BufferOptionMenuString(menuItem, pos);
+
+    AddTextPrinterParameterized(WIN_OPTIONS, 1, sOptionMenuItemsNames[menuItem], 8, (pos * (Y_DIFF)), TEXT_SKIP_DRAW, NULL);
+    CopyWindowToVram(WIN_OPTIONS, COPYWIN_GFX);
+}
+
+static void ScrollAll(int direction) // to bottom or top
+{
+    int i, y, menuItem, pos;
+    int scrollCount = MENUITEM_COUNT - OPTIONS_LINE_CNT;
+
+    // Move items up/down
+    ScrollWindow(WIN_OPTIONS, direction, Y_DIFF * scrollCount, PIXEL_FILL(0));
+
+    // Clear moved items
+    if (direction == 0)
+    {
+        y = OPTIONS_LINE_CNT - scrollCount;
+        if (y < 0)
+            y = OPTIONS_LINE_CNT;
+        y *= (Y_DIFF);
+    }
+    else
+    {
+        y = 0;
+    }
+
+    FillWindowPixelRect(WIN_OPTIONS, PIXEL_FILL(1), 0, y, 208, Y_DIFF * scrollCount + 1);
+    // Print new texts
+    for (i = 0; i < scrollCount; i++)
+    {
+        if (direction == 0) // From top to bottom
+            menuItem = MENUITEM_COUNT - 1 - i, pos = OPTIONS_LINE_CNT - 1 - i;
+        else // From bottom to top
+            menuItem = i, pos = i;
+
+        BufferOptionMenuString(menuItem, pos);
+
+        AddTextPrinterParameterized(WIN_OPTIONS, 1, sOptionMenuItemsNames[menuItem], 8, (pos * (Y_DIFF)), TEXT_SKIP_DRAW, NULL);
+    }
+    CopyWindowToVram(WIN_OPTIONS, COPYWIN_GFX);
 }
 
 static u8 OptionMenu_ProcessInput(void)
@@ -440,18 +501,54 @@ static u8 OptionMenu_ProcessInput(void)
     }
     else if (JOY_REPT(DPAD_UP))
     {
-        if (sOptionMenuPtr->cursorPos == MENUITEM_TEXTSPEED)
-            sOptionMenuPtr->cursorPos = MENUITEM_CANCEL;
+        if (sOptionMenuPtr->visibleCursor == 3) // don't advance visible cursor until scrolled to the middle
+        {
+            if (--sOptionMenuPtr->cursorPos == sOptionMenuPtr->visibleCursor - 1)
+                sOptionMenuPtr->visibleCursor--;
+            else
+                ScrollMenu(1);
+        }
         else
-            sOptionMenuPtr->cursorPos = sOptionMenuPtr->cursorPos - 1;
+        {
+            if (--sOptionMenuPtr->cursorPos < 0) // Scroll all the way to the bottom.
+            {
+                sOptionMenuPtr->visibleCursor = sOptionMenuPtr->cursorPos = 3;
+                ScrollAll(0);
+                sOptionMenuPtr->visibleCursor = OPTIONS_LINE_CNT - 1;
+                sOptionMenuPtr->cursorPos = MENUITEM_COUNT - 1;
+            }
+            else
+            {
+                sOptionMenuPtr->visibleCursor--;
+            }
+        }
+
         return 3;        
     }
     else if (JOY_REPT(DPAD_DOWN))
-    {
-        if (sOptionMenuPtr->cursorPos == MENUITEM_CANCEL)
-            sOptionMenuPtr->cursorPos = MENUITEM_TEXTSPEED;
+    {    
+       if (sOptionMenuPtr->visibleCursor == 3) // don't advance visible cursor until scrolled to the bottom
+        {
+            if (++sOptionMenuPtr->cursorPos == MENUITEM_COUNT - 2)
+                sOptionMenuPtr->visibleCursor++;
+            else
+                ScrollMenu(0);
+        }
         else
-            sOptionMenuPtr->cursorPos = sOptionMenuPtr->cursorPos + 1;
+        {
+            if (++sOptionMenuPtr->cursorPos >= MENUITEM_COUNT) // Scroll all the way to the top.
+            {
+                sOptionMenuPtr->visibleCursor = 3;
+                sOptionMenuPtr->cursorPos = MENUITEM_COUNT - 4;
+                ScrollAll(1);
+                sOptionMenuPtr->visibleCursor = sOptionMenuPtr->cursorPos = 0;
+            }
+            else
+            {
+                sOptionMenuPtr->visibleCursor++;
+            }
+        }
+
         return 3;
     }
     else if (JOY_NEW(B_BUTTON) || JOY_NEW(A_BUTTON))
@@ -464,7 +561,7 @@ static u8 OptionMenu_ProcessInput(void)
     }
 }
 
-static void BufferOptionMenuString(u8 selection)
+static void BufferOptionMenuString(u8 selection, u8 visiSelection)
 {
     u8 str[20];
     u8 buf[12];
@@ -473,8 +570,8 @@ static void BufferOptionMenuString(u8 selection)
     
     memcpy(dst, sOptionMenuTextColor, 3);
     x = 0x82;
-    y = ((GetFontAttribute(FONT_NORMAL, FONTATTR_MAX_LETTER_HEIGHT) - 1) * selection) + 2;
-    FillWindowPixelRect(1, 1, x, y, 0x46, GetFontAttribute(FONT_NORMAL, FONTATTR_MAX_LETTER_HEIGHT));
+    y = (Y_DIFF) * visiSelection;
+    FillWindowPixelRect(WIN_OPTIONS, 1, x, y, 0x46, Y_DIFF);
 
     switch (selection)
     {
@@ -561,16 +658,18 @@ static void LoadOptionMenuItemNames(void)
     FillWindowPixelBuffer(1, PIXEL_FILL(1));
     for (i = 0; i < MENUITEM_COUNT; i++)
     {
-        AddTextPrinterParameterized(WIN_OPTIONS, FONT_NORMAL, sOptionMenuItemsNames[i], 8, (u8)((i * (GetFontAttribute(FONT_NORMAL, FONTATTR_MAX_LETTER_HEIGHT))) + 2) - i, TEXT_SKIP_DRAW, NULL);    
+        AddTextPrinterParameterized(WIN_OPTIONS,
+                                    FONT_NORMAL,
+                                    sOptionMenuItemsNames[i],
+                                    8,
+                                    (i * (Y_DIFF)),
+                                    TEXT_SKIP_DRAW,
+                                    NULL);
     }
 }
 
 static void UpdateSettingSelectionDisplay(u16 selection)
 {
-    u16 maxLetterHeight, y;
-    
-    maxLetterHeight = GetFontAttribute(FONT_NORMAL, FONTATTR_MAX_LETTER_HEIGHT);
-    y = selection * (maxLetterHeight - 1) + 0x3A;
-    SetGpuReg(REG_OFFSET_WIN0V, WIN_RANGE(y, y + maxLetterHeight));
+    SetGpuReg(REG_OFFSET_WIN0V, WIN_RANGE(selection * Y_DIFF + 0x3A - 2, (selection + 1) * Y_DIFF + 0x3A - 3));
     SetGpuReg(REG_OFFSET_WIN0H, WIN_RANGE(0x10, 0xE0));
 }
