@@ -425,6 +425,8 @@ void TrySetUpQuestLogScenes_ElseContinueFromSave(u8 taskId)
             sNumScenes++;
     }
 
+    sNumScenes = 0;
+
     if (sNumScenes != 0)
     {
         gHelpSystemEnabled = FALSE;
