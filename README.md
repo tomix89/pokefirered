@@ -33,6 +33,9 @@ while TheXaman's emerald has 7.<br>![img](images/options-menu-scroll.gif)
  4) this was a nice exercise. Adding new option item with value formatting and the modifier itself.\
 Still 100% backward compatible, as i have chosen an unused area from SaveBlock2.\
 Player can now chose from 0.5x, 0.8x, 1x, 1.2x, 1.5x, 2x, 2.5x, 3x experince gain multiplier.<br>![img](images/options-menu-exp-gain.gif) 
-
+ 5)  I found it especially time consuming during debug to look at the quest log all the times. 
+So i found a way to skip it, then i thought why not to have this also as an option.
+The option uses an unoccupied SaveBlock2 address, therefore it is 100% backward compatible with the stock game.\
+Actually here it was more work to add the actual menu item then the function
 
 To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page.

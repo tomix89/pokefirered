@@ -425,6 +425,11 @@ void TrySetUpQuestLogScenes_ElseContinueFromSave(u8 taskId)
             sNumScenes++;
     }
 
+    // skip the quest log
+    if (gSaveBlock2Ptr->optionsQuestLogDisabled) {
+        sNumScenes = 0;
+    }
+
     if (sNumScenes != 0)
     {
         gHelpSystemEnabled = FALSE;
