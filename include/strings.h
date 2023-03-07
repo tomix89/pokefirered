@@ -918,6 +918,7 @@ extern const u8 gText_Rooftop2[];
 
 // option menu
 extern const u8 gText_TextSpeed[];
+extern const u8 gText_ExpGainModifier[];
 extern const u8 gText_BattleScene[];
 extern const u8 gText_BattleStyle[];
 extern const u8 gText_Sound[];

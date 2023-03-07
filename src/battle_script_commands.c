@@ -26,6 +26,7 @@
 #include "reshow_battle_screen.h"
 #include "battle_controllers.h"
 #include "battle_interface.h"
+#include "exp_gain_modifier.h"
 #include "constants/battle_anim.h"
 #include "constants/battle_move_effects.h"
 #include "constants/battle_script_commands.h"
@@ -3144,6 +3145,7 @@ static void Cmd_getexp(void)
         {
             u16 calculatedExp;
             s32 viaSentIn;
+            u8 expGainModifier;
 
             for (viaSentIn = 0, i = 0; i < PARTY_SIZE; i++)
             {
@@ -3164,6 +3166,11 @@ static void Cmd_getexp(void)
             }
 
             calculatedExp = gBaseStats[gBattleMons[gBattlerFainted].species].expYield * gBattleMons[gBattlerFainted].level / 7;
+            expGainModifier = sExpGainModifier[gSaveBlock2Ptr->optionsExpGainModifier];
+            
+            // the +5 will behave as +0.5 decimal and will ensure that the result is rounded instead of truncation
+            calculatedExp = (calculatedExp * (u32)expGainModifier + 5ULL) / 10ULL;     
+
 
             if (viaExpShare) // at least one mon is getting exp via exp share
             {
