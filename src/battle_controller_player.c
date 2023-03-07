@@ -86,6 +86,8 @@ static void HandleInputChooseTarget(void);
 static void MoveSelectionDisplayPpNumber(void);
 static void MoveSelectionDisplayPpString(void);
 static void MoveSelectionDisplayMoveType(void);
+static void MoveSelectionDisplayMoveTypeOrig(void);
+static void MoveSelectionDisplayMoveTypeAdvanced(void);
 static void MoveSelectionDisplayMoveNames(void);
 static void HandleMoveSwitching(void);
 static void WaitForMonSelection(void);
@@ -173,6 +175,9 @@ static const u8 sTargetIdentities[] = { B_POSITION_PLAYER_LEFT, B_POSITION_PLAYE
 // unknown unused data
 static const u8 sUnused[] = { 0x48, 0x48, 0x20, 0x5a, 0x50, 0x50, 0x50, 0x58 };
 
+// used for double battle effectiveness calculations
+static EWRAM_DATA bool8 wasTargetChosen;
+
 void BattleControllerDummy(void)
 {
 }
@@ -229,6 +234,9 @@ static void HandleInputChooseAction(void)
         switch (gActionSelectionCursor[gActiveBattler])
         {
         case 0:
+            // either user just entered the battle 
+            // or left the 'FIGHT' screen, which invalidates the target 
+            wasTargetChosen = FALSE;
             BtlController_EmitTwoReturnValues(1, B_ACTION_USE_MOVE, 0);
             break;
         case 1:
@@ -386,6 +394,11 @@ static void HandleInputChooseTarget(void)
                 ++i;
                 break;
             }
+
+            if (gSaveBlock2Ptr->optionsTypeEffMode != OPTIONS_TYPE_EFF_MODE_ORIG) {
+                MoveSelectionDisplayMoveType();
+            }
+
             if (gAbsentBattlerFlags & gBitTable[gMultiUsePlayerCursor])
                 i = 0;
         }
@@ -426,6 +439,11 @@ static void HandleInputChooseTarget(void)
                 ++i;
                 break;
             }
+
+            if (gSaveBlock2Ptr->optionsTypeEffMode != OPTIONS_TYPE_EFF_MODE_ORIG) {
+                MoveSelectionDisplayMoveType();
+            }
+
             if (gAbsentBattlerFlags & gBitTable[gMultiUsePlayerCursor])
                 i = 0;
         }
@@ -490,6 +508,9 @@ void HandleInputChooseMove(void)
         }
         else
         {
+            // after target was identified calcualtion of the effectiveness is ready to do it's magic 
+            // player now can get back to chose another move and see the correct effectiveness
+            wasTargetChosen = TRUE; 
             gBattlerControllerFuncs[gActiveBattler] = HandleInputChooseTarget;
             if (moveTarget & (MOVE_TARGET_USER | MOVE_TARGET_USER_OR_SELECTED))
                 gMultiUsePlayerCursor = gActiveBattler;
@@ -497,6 +518,11 @@ void HandleInputChooseMove(void)
                 gMultiUsePlayerCursor = GetBattlerAtPosition(B_POSITION_OPPONENT_RIGHT);
             else
                 gMultiUsePlayerCursor = GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT);
+
+            if (gSaveBlock2Ptr->optionsTypeEffMode != OPTIONS_TYPE_EFF_MODE_ORIG) {
+                MoveSelectionDisplayMoveType();
+            }  
+
             gSprites[gBattlerSpriteIds[gMultiUsePlayerCursor]].callback = SpriteCB_ShowAsMoveTarget;
         }
     }
@@ -1399,7 +1425,28 @@ static void MoveSelectionDisplayPpNumber(void)
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_PP_REMAINING);
 }
 
+// this is called from a lot of places so we will use it for proxy
+// to the new calculation mode
 static void MoveSelectionDisplayMoveType(void)
+{
+    if (gSaveBlock2Ptr->optionsTypeEffMode == OPTIONS_TYPE_EFF_MODE_ORIG) {
+        MoveSelectionDisplayMoveTypeOrig();
+    } else {
+        // in double battle player has to choose target first
+        // to be able to see the effectiveness correctly
+        if (IsDoubleBattle() && !wasTargetChosen) {
+            u8 *txtPtr;
+            txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceEffDualBattle);
+            StringCopy(txtPtr, gText_MoveInterfaceDynamicColors);
+            BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_TYPE);
+            return;
+        }
+
+        MoveSelectionDisplayMoveTypeAdvanced();
+    }
+}
+
+static void MoveSelectionDisplayMoveTypeOrig(void)
 {
     u8 *txtPtr;
     struct ChooseMoveStruct *moveInfo = (struct ChooseMoveStruct *)(&gBattleBufferA[gActiveBattler][4]);
@@ -1410,6 +1457,64 @@ static void MoveSelectionDisplayMoveType(void)
     *txtPtr++ = 1;
     txtPtr = StringCopy(txtPtr, gText_MoveInterfaceDynamicColors);
     StringCopy(txtPtr, gTypeNames[gBattleMoves[moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]].type]);
+    BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_TYPE);
+}
+
+void CalcTypeEffectiveness(u8 targetId, u8 *moveFlags)
+{
+    u16 move = gBattleMons[gActiveBattler].moves[gMoveSelectionCursor[gActiveBattler]];
+    
+    gBattleMoveDamage = 100;
+    // TypeCalc alters the gBattleMoveDamage inside
+    *moveFlags = TypeCalc(move, gActiveBattler, targetId);
+}
+
+static void MoveSelectionDisplayMoveTypeAdvanced(void)
+{
+    u8 *txtPtr;
+    u8 targetId;
+    u8 moveFlags;
+    u16 move = gBattleMons[gActiveBattler].moves[gMoveSelectionCursor[gActiveBattler]];
+
+    // there are a lot of power == 1 moves which have really complex special calulations
+    // i'm not sure if they are all but at least some (diglet's magnitude) are affected by type interactions
+    // so show type effectivenes in this case
+    if (gBattleMoves[move].power > 0) {
+        txtPtr = StringCopy(gDisplayedStringBattle, gText_MoveInterfaceEff);
+
+        if (IsDoubleBattle()) {
+            targetId = GetBattlerPosition(gMultiUsePlayerCursor);
+        } else { 
+            targetId = GetBattlerAtPosition(BATTLE_OPPOSITE(GetBattlerPosition(gActiveBattler)));
+        }
+
+        CalcTypeEffectiveness(targetId, &moveFlags);
+        SetTypeEffPaletteInMoveSelection(moveFlags);
+
+        if (moveFlags & MOVE_RESULT_NO_EFFECT) {
+            // when a TYPE_GROUND attacks a foe which has ABILITY_LEVITATE it has no effect
+            // the flags are set, but the damage stays non zero, so clear it explicitly
+            gBattleMoveDamage = 0;
+        }
+
+        txtPtr = StringCopy(txtPtr, gText_FontNormal);
+        txtPtr = StringCopy(txtPtr, gText_MoveInterfaceEffDynamicColors);
+
+        // if no damage would be taken - show a dedicated text
+        if (gBattleMoveDamage == 0) {
+            StringCopy(txtPtr, gText_MoveInterfaceEffImmune);
+        } else {
+            txtPtr = ConvertIntToDecimalStringN(txtPtr, gBattleMoveDamage, STR_CONV_MODE_RIGHT_ALIGN, 3);
+            *txtPtr++ = CHAR_PERCENT;
+            *txtPtr = EOS;
+        }
+    } else {
+        // on the other hand the majotiry of stat moves are NOT type sensitive,
+        // so it will be misleading to show an actual value
+        // or color, therefore adding  dedicated text
+        StringCopy(gDisplayedStringBattle, gText_MoveInterfaceEffStatMove);
+    }
+
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MOVE_TYPE);
 }
 

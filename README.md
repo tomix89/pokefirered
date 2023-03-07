@@ -5,20 +5,22 @@ I wanted to play this game a long time but there were some 'time waster' functio
 Then i found out that i can make changes as i wish to thanks to https://github.com/pret and his community: 
 [Discord](https://discord.gg/d5dubZ3) and [IRC](https://web.libera.chat/?#pret).
 
-I wanted the stock story and game experience (v1.1) without:
- 1) text animation character by character -> instant text mode
- 2) speeding up the healath care center nurse text, especially remove the 'We Hope To See You Again'
+I wanted the stock story (v1.1) but:
+ 1) without text animation character by character -> instant text mode
+ 2) speeded up the healath care center nurse text, especially remove the 'We Hope To See You Again'
  3) scrolling options menu - I plan to add more and more options, and they need to fit somehow 
- 4) add experience gain modifyer
+ 4) added experience gain modifyer
  5) option to skip the quest log  
- 6) add experience share ratio modifier
+ 6) added experience share ratio modifier
  7) added ability to show EV and IV in the Summary screen
- 8) add type effectiveness to move chose screen
- 
+ 8) added type effectiveness to move chose screen
 
-I also need to say a huge thanks to https://github.com/Deokishisu with his https://github.com/Deokishisu/FRLG-Plus
-repo, which contained the stuff i needed (among lot more) in some form.
-
+I also need to say a huge thanks to the creators of the following repos which contained the stuff i needed (among lot more) in some form:\
+https://github.com/Deokishisu/FRLG-Plus <br>
+https://github.com/TheXaman/pokeemerald/tree/tx_optionsPlus <br>
+https://github.com/pret/pokeemerald/wiki/Tutorials <br>
+<br>
+<br>
 From the wishlist I managed to accomplish:
  1) instant text mode. I modifyed the hack from Deokishisu so that when somebody want's to say 
 a lot more than 2 lines, the wait function will be still active, so i can read the content. 
@@ -49,6 +51,33 @@ But it(interfering with the Help system, but also after disabling that the `R_BU
 So why not to use the `A_BUTTON` as on other summary screens? So i decided to do so. Each subsequent press of `A_BUTTON` will forward the screen to the next mode
 Skills -> EV -> IV -> Skills...\
 Mine also updates the page text, so you know on which you are on.<br>![img](images/summary-ev-iv.gif)
- 8) as first step added the menu option to be able to select between different modes of type effectiveness
+ 8) as first step added the menu option to be able to select between different modes of type effectiveness. Still 100% backward compatible, as i have chosen an unused area from SaveBlock2.\
+As the next step i added (next to the original one) the v1 (in options called simple) mode which calculates the
+two type ecffectivenes together with STAB. Some examples:
+    
+  * Charmeleon `FIRE` using Ember `FIRE` on Paras `BUG` `GRASS` -> 600% = double type strength, has STAB<br>![img](images/Charmander-Ember-600.png)
+  * Pikachu `ELECTRIC` using Thunder Shock `ELECTRIC` on Pidgey `NORMAL` `FLYING` -> 300% = type strength and STAB<br>![img](images/Pikachu-Thunder_Shock.png)
+  * Charmander `FIRE` using Ember `FIRE` on Pidgey `NORMAL` `FLYING` -> 150% = no type strength or weakness, but has STAB<br>![img](images/Charmander-Ember-150.png)
+  * Pikachu `ELECTRIC` using Quick Attack `NORMAL` on Pidgey `NORMAL` `FLYING` -> 100% = no type strength or weakness, no STAB<br>![img](images/Pikachu-Quick_Attack.png)
+  * Charmander `FIRE` using Ember `FIRE` on Geodude `ROCK` `GROUND` -> 75% = type weakness, but has STAB<br>![img](images/Charmander-Ember.png)
+  * Charmander `FIRE` using Scratch `NORMAL` on Geodude `ROCK` `GROUND` -> 50% = type weakness, no STAB<br>![img](images/Charmander-Scratch.png)
+  * Pidgeotto `NORMAL` `FLYING` using Gust `FLYING` on Magnemite `STEEL` `ELECTRIC` -> 37.5% = double type weakness, has STAB<br>![img](images/Pidgeotto-Gust.png)
+  * Dugtrio `GROUND` using Dig `GROUND` on Pidgey `NORMAL` `FLYING` -> 0% (Immune) = type weakness, has STAB but does not matter<br>![img](images/Dugtrio-Dig.png)
+  * Status moves has no coloring, as they have are (in mayority) not affected by type<br>![img](images/status_move.png)
 
+All the possible values are:
+   * 25% double type weakness, no STAB
+   * 37.5% double type weakness, has STAB
+   * 50% single type weakness, no STAB
+   * 75% single type weakness, has STAB
+   * 100% no type advance, no STAB
+   * 150% no type advance, has  STAB
+   * 200% single type strength, no STAB
+   * 300% single type strength, has STAB
+   * 400% double type strength, no STAB
+   * 600% double type strength, has STAB
+
+   **Note:** The coloring respects the in game texts `super effective` and `not very effective` so even if you have a STAB move with 150% it will stay uncolored
+<br> 
+<br>
 To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page.

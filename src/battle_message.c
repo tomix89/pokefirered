@@ -1283,6 +1283,11 @@ const u8 gText_BattleMenu[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}FIG
 const u8 gText_SafariZoneMenu[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}BALL{CLEAR_TO 56}BAIT\nROCK{CLEAR_TO 56}RUN");
 const u8 gText_MoveInterfacePP[] = _("PP ");
 const u8 gText_MoveInterfaceType[] = _("TYPE/");
+const u8 gText_MoveInterfaceEff[] = _("EFF:");
+const u8 gText_MoveInterfaceEffDualBattle[] = _("PICK TARGET");
+const u8 gText_MoveInterfaceEffDynamicColors[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 9 14 10}");
+const u8 gText_MoveInterfaceEffImmune[] = _("IMMUNE");
+const u8 gText_MoveInterfaceEffStatMove[] = _("STATUS MOVE");
 const u8 gText_MoveInterfaceDynamicColors[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}");
 const u8 gText_WhichMoveToForget_Unused[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}どの わざを\nわすれさせたい?");
 const u8 gText_BattleYesNoChoice[] = _("{PALETTE 5}{COLOR_HIGHLIGHT_SHADOW 13 14 15}Yes\nNo");
@@ -2811,6 +2816,35 @@ bool8 BattleStringShouldBeColored(u16 stringId)
      || stringId == STRINGID_TRAINER2WINTEXT)
         return TRUE;
     return FALSE;
+}
+
+void SetTypeEffPaletteInMoveSelection(u8 moveFlags)
+{
+    const u16 *palPtr = gPPTextPalette;
+
+    // index 90 is palette 5 color 10 -> Font shadow color
+    // index 89 is palette 5 color 9  -> Font color
+    // palette is defined in B_WIN_MOVE_TYPE and the actual palette is gPPTextPalette
+
+    if (moveFlags & MOVE_RESULT_NO_EFFECT) {
+        gPlttBufferUnfaded[90] = palPtr[7]; // shadow
+        gPlttBufferUnfaded[89] = palPtr[15]; // fg
+    }
+    else if (moveFlags & MOVE_RESULT_NOT_VERY_EFFECTIVE ) {
+        gPlttBufferUnfaded[90] = palPtr[5]; // shadow
+        gPlttBufferUnfaded[89] = palPtr[4]; // fg
+    }
+    else if (moveFlags & MOVE_RESULT_SUPER_EFFECTIVE) {
+        gPlttBufferUnfaded[90] = palPtr[14]; // shadow
+        gPlttBufferUnfaded[89] = palPtr[13]; // fg
+    }
+    else {
+        gPlttBufferUnfaded[90] = palPtr[7]; // shadow
+        gPlttBufferUnfaded[89] = palPtr[6]; // fg
+    }
+
+    CpuCopy16(&gPlttBufferUnfaded[90], &gPlttBufferFaded[90], sizeof(u16));
+    CpuCopy16(&gPlttBufferUnfaded[89], &gPlttBufferFaded[89], sizeof(u16));
 }
 
 void SetPpNumbersPaletteInMoveSelection(void)
