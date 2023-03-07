@@ -10,6 +10,7 @@
 #include "strings.h"
 #include "field_fadetransition.h"
 #include "exp_gain_modifier.h"
+#include "exp_share_ratio.h"
 #include "gba/m4a_internal.h"
 
 // can't include the one in menu_helpers.h since Task_OptionMenu needs bool32 for matching
@@ -20,6 +21,7 @@ enum
 {
     MENUITEM_TEXTSPEED = 0,
     MENUITEM_EXPGAINMOD,
+    MENUITEM_EXPSHARERATIO,
     MENUITEM_QUESTLOG,
     MENUITEM_BATTLESCENE,
     MENUITEM_BATTLESTYLE,
@@ -138,12 +140,13 @@ static const struct BgTemplate sOptionMenuBgTemplates[] =
 };
 
 static const u16 sOptionMenuPalette[] = INCBIN_U16("graphics/misc/unk_83cc2e4.gbapal");
-static const u16 sOptionMenuItemCounts[MENUITEM_COUNT] = {4, 8, 2, 2, 2, 2, 3, 10, 0};
+static const u16 sOptionMenuItemCounts[MENUITEM_COUNT] = {4, 8, 7, 2, 2, 2, 2, 3, 10, 0};
 
 static const u8 *const sOptionMenuItemsNames[MENUITEM_COUNT] =
 {
     [MENUITEM_TEXTSPEED]   = gText_TextSpeed,
     [MENUITEM_EXPGAINMOD]  = gText_ExpGainModifier,
+    [MENUITEM_EXPSHARERATIO] = gText_ExpShareRatio,
     [MENUITEM_QUESTLOG]    = gText_QuestLog,
     [MENUITEM_BATTLESCENE] = gText_BattleScene,
     [MENUITEM_BATTLESTYLE] = gText_BattleStyle,
@@ -224,6 +227,7 @@ void CB2_OptionsMenuFromStartMenu(void)
     sOptionMenuPtr->cursorPos = 0;
     sOptionMenuPtr->option[MENUITEM_TEXTSPEED] = gSaveBlock2Ptr->optionsTextSpeed;
     sOptionMenuPtr->option[MENUITEM_EXPGAINMOD] = gSaveBlock2Ptr->optionsExpGainModifier;
+    sOptionMenuPtr->option[MENUITEM_EXPSHARERATIO] = gSaveBlock2Ptr->optionsExpShareRatio; 
     sOptionMenuPtr->option[MENUITEM_QUESTLOG] = gSaveBlock2Ptr->optionsQuestLogDisabled;
     sOptionMenuPtr->option[MENUITEM_BATTLESCENE] = gSaveBlock2Ptr->optionsBattleSceneOff;
     sOptionMenuPtr->option[MENUITEM_BATTLESTYLE] = gSaveBlock2Ptr->optionsBattleStyle;
@@ -602,6 +606,15 @@ static void BufferOptionMenuString(u8 selection, u8 visiSelection)
         str[4] = EOS;
         AddTextPrinterParameterized3(1, FONT_NORMAL, x, y, dst, -1, str);
         break;
+
+    case MENUITEM_EXPSHARERATIO:
+        temp = sExpShareRatio[sOptionMenuPtr->option[selection]]; 
+        ConvertIntToDecimalStringN(&str[0], temp, STR_CONV_MODE_RIGHT_ALIGN, 2);
+        str[2] = CHAR_COLON;
+        ConvertIntToDecimalStringN(&str[3], 100 - temp, STR_CONV_MODE_RIGHT_ALIGN, 2);
+        AddTextPrinterParameterized3(1, FONT_NORMAL, x, y, dst, -1, str);
+        break;
+
     case MENUITEM_QUESTLOG:
         AddTextPrinterParameterized3(1, FONT_NORMAL, x, y, dst, -1, sQuestLogOptions[sOptionMenuPtr->option[selection]]);
         break;
@@ -637,6 +650,7 @@ static void CloseAndSaveOptionMenu(u8 taskId)
     FreeAllWindowBuffers();
     gSaveBlock2Ptr->optionsTextSpeed = sOptionMenuPtr->option[MENUITEM_TEXTSPEED];
     gSaveBlock2Ptr->optionsExpGainModifier = sOptionMenuPtr->option[MENUITEM_EXPGAINMOD];
+    gSaveBlock2Ptr->optionsExpShareRatio = sOptionMenuPtr->option[MENUITEM_EXPSHARERATIO];
     gSaveBlock2Ptr->optionsQuestLogDisabled = sOptionMenuPtr->option[MENUITEM_QUESTLOG];
     gSaveBlock2Ptr->optionsBattleSceneOff = sOptionMenuPtr->option[MENUITEM_BATTLESCENE];
     gSaveBlock2Ptr->optionsBattleStyle = sOptionMenuPtr->option[MENUITEM_BATTLESTYLE];

@@ -27,6 +27,7 @@
 #include "battle_controllers.h"
 #include "battle_interface.h"
 #include "exp_gain_modifier.h"
+#include "exp_share_ratio.h"
 #include "constants/battle_anim.h"
 #include "constants/battle_move_effects.h"
 #include "constants/battle_script_commands.h"
@@ -3174,11 +3175,24 @@ static void Cmd_getexp(void)
 
             if (viaExpShare) // at least one mon is getting exp via exp share
             {
-                *exp = SAFE_DIV(calculatedExp / 2, viaSentIn);
+                u16 battlingExp, restingExp;
+                u8 ratio;
+                
+                // safeguard
+                if (gSaveBlock2Ptr->optionsExpShareRatio > 6) {
+                    gSaveBlock2Ptr->optionsExpShareRatio = 0;
+                }
+
+                // the +50 will behave as +0.5 decimal and will ensure that the result is rounded instead of truncation
+                ratio = sExpShareRatio[gSaveBlock2Ptr->optionsExpShareRatio];
+                battlingExp = (calculatedExp * (u32)ratio         + 50ULL) / 100;
+                restingExp =  (calculatedExp * (u32)(100 - ratio) + 50ULL) / 100;
+
+                *exp = SAFE_DIV(battlingExp, viaSentIn);
                 if (*exp == 0)
                     *exp = 1;
 
-                gExpShareExp = calculatedExp / 2 / viaExpShare;
+                gExpShareExp = restingExp / viaExpShare;
                 if (gExpShareExp == 0)
                     gExpShareExp = 1;
             }

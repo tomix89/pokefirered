@@ -864,6 +864,7 @@ const u8 gText_WaitingTrainerFinishReading[] = _("Waiting for the other TRAINER 
 const u8 gText_Option[] = _("OPTION");
 const u8 gText_TextSpeed[] = _("TEXT SPEED");
 const u8 gText_ExpGainModifier[] = _("EXP. GAIN MODIF.");
+const u8 gText_ExpShareRatio[] = _("EXP. SHARE RATIO");
 const u8 gText_QuestLog[] = _("SHOW QUEST LOG");
 const u8 gText_BattleScene[] = _("BATTLE SCENE");
 const u8 gText_BattleStyle[] = _("BATTLE STYLE");

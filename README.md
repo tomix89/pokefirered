@@ -11,7 +11,7 @@ I wanted the stock story and game experience (v1.1) without:
  3) scrolling options menu - I plan to add more and more options, and they need to fit somehow 
  4) add experience gain modifyer
  5) option to skip the quest log  
- 6) add experience share ration modifyer
+ 6) add experience share ratio modifier
  7) add type effectiveness to move chose screen
  
 
@@ -37,5 +37,10 @@ Player can now chose from 0.5x, 0.8x, 1x, 1.2x, 1.5x, 2x, 2.5x, 3x experince gai
 So i found a way to skip it, then i thought why not to have this also as an option.
 The option uses an unoccupied SaveBlock2 address, therefore it is 100% backward compatible with the stock game.\
 Actually here it was more work to add the actual menu item then the function
+ 6)  Originally when a mon holds an item 'exp share' it gets a share from exp from the battling mons in an 50:50 manner. 
+Now this ratio can be adjusted.\
+For example 10:90 will mean that the total exp of 333 will be divided into 33 to 300 ratio in between battling and resting mons
+resting mon = the one who has the hold item and was not battling\
+This comes especially handy when you need to level up a mon quickly, which otherwise can't battle as it's too weak 
 
 To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page.
