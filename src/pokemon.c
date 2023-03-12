@@ -5424,6 +5424,10 @@ void MonGainEVs(struct Pokemon *mon, u16 defeatedSpecies)
         evs[i] += evIncrease;
         totalEVs += evIncrease;
         SetMonData(mon, MON_DATA_HP_EV + i, &evs[i]);
+
+        if (evIncrease > 0) {
+            DebugPrintfLevel(MGBA_LOG_WARN, "EV %S: %d", gStatNamesTable[i], evIncrease);
+        }
     }
 }
 
