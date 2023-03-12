@@ -12,7 +12,8 @@ I wanted the stock story and game experience (v1.1) without:
  4) add experience gain modifyer
  5) option to skip the quest log  
  6) add experience share ratio modifier
- 7) add type effectiveness to move chose screen
+ 7) added ability to show EV and IV in the Summary screen
+ 8) add type effectiveness to move chose screen
  
 
 I also need to say a huge thanks to https://github.com/Deokishisu with his https://github.com/Deokishisu/FRLG-Plus
@@ -42,5 +43,11 @@ Now this ratio can be adjusted.\
 For example 10:90 will mean that the total exp of 333 will be divided into 33 to 300 ratio in between battling and resting mons
 resting mon = the one who has the hold item and was not battling\
 This comes especially handy when you need to level up a mon quickly, which otherwise can't battle as it's too weak 
+ 7) Wagely based on https://www.pokecommunity.com/showpost.php?p=10161688&postcount=77 \
+For Firered the code was different, so i needed to improvise. Also the `R_BUTTON` `L_BUTTON` (not `DPAD_LEFT` `DPAD_RIGHT`) was not really working in FireRed. 
+But it(interfering with the Help system, but also after disabling that the `R_BUTTON` `L_BUTTON` was misbehaving).\
+So why not to use the `A_BUTTON` as on other summary screens? So i decided to do so. Each subsequent press of `A_BUTTON` will forward the screen to the next mode
+Skills -> EV -> IV -> Skills...\
+Mine also updates the page text, so you know on which you are on.<br>![img](images/summary-ev-iv.gif)
 
 To set up the repository, see [INSTALL.md](INSTALL.md), or wisit the original author's page.
